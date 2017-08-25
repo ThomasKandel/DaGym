@@ -20,22 +20,25 @@ namespace DaGym.Controllers
         // GET: GymClasses
         [AllowAnonymous]
         public ActionResult Index_org()
-        {           
-        return View(db.GymClasses.ToList());
+        {
+            return View(db.GymClasses.ToList());
         }
 
         // GET: GymClasses
         [AllowAnonymous]
-        public ActionResult Index()
+        public ActionResult Index(string id)
         {
+            var showHistory = id == "showHistory";
             DateTime loDate;
-            if (indexShowHistory)
+            if (showHistory)
             {
                 loDate = DateTime.Parse("1901-01-01 00:00:00");
+                ViewBag.showHistory = true;
             }
             else
             {
                 loDate = DateTime.Now;
+                ViewBag.showHistory = false;
             }
 
             var gymClasses = db.GymClasses
@@ -49,29 +52,28 @@ namespace DaGym.Controllers
 
             List<GymClassView> gymClassList = new List<GymClassView>();
 
-            if (gymClasses.Count() > 0)
-            {
-                foreach (var item in gymClasses)
-                {
-                    var gymClassView = new GymClassView();
-                    gymClassView.Id = item.Id;
-                    gymClassView.Name = item.Name;
-                    gymClassView.StartTime = item.StartTime;
-                    gymClassView.Duration = item.Duration;
-                    gymClassView.Description = item.Description;
-                    gymClassView.AttendingMembers = item.AttendingMembers;
 
-                    if (gymClassView.AttendingMembers.Contains(CurrentUser))
-                    {
-                        gymClassView.Booked = true;
-                    }
-                    else
-                    {
-                        gymClassView.Booked = false;
-                    }
-                    gymClassList.Add(gymClassView);
+            foreach (var item in gymClasses)
+            {
+                var gymClassView = new GymClassView();
+                gymClassView.Id = item.Id;
+                gymClassView.Name = item.Name;
+                gymClassView.StartTime = item.StartTime;
+                gymClassView.Duration = item.Duration;
+                gymClassView.Description = item.Description;
+                gymClassView.AttendingMembers = item.AttendingMembers;
+
+                if (gymClassView.AttendingMembers.Contains(CurrentUser))
+                {
+                    gymClassView.Booked = true;
                 }
+                else
+                {
+                    gymClassView.Booked = false;
+                }
+                gymClassList.Add(gymClassView);
             }
+
             return View(gymClassList);
         }
 
@@ -98,7 +100,7 @@ namespace DaGym.Controllers
         }
 
         // GET: GymClasses/Create
-        [Authorize (Roles = "admin")]
+        [Authorize(Roles = "admin")]
         public ActionResult Create()
         {
             return View();
@@ -201,10 +203,10 @@ namespace DaGym.Controllers
             return RedirectToAction("Index");
         }
 
-        public ActionResult IndexToggleHistory(IndexShowHistory)
+        public ActionResult IndexToggleHistory()
         {
             indexShowHistory = !indexShowHistory;
-            return RedirectToAction("Index", new { });
+            return RedirectToAction("Index");
         }
 
 

@@ -1,7 +1,10 @@
 ﻿@model IEnumerable<DaGym.Models.GymClassView>
 
 @{
-            ViewBag.Title = "Aktuella Träningspass";
+    var userName = User.Identity.Name;
+    var loggedinUser = User;
+    ViewBag.Title = "Aktuella Träningspass";
+
 }
 
 
@@ -11,77 +14,79 @@
 
         <h4 class="col-sm-8">@ViewBag.Title</h4>
 
-        <a href="/GymClasses/IndexToggleHistory/" class="btn btn-default col-sm-4">Visa passerade</a>
+        <a href="/GymClasses/Index/showHistory" class="btn btn-default col-sm-4">Visa passerade</a>
 
 </div>
 
-        @if (User.IsInRole("admin"))
-        {
-            @Html.ActionLink("Registrera nytt träningspass", "Create")
-        }
+@if (User.IsInRole("admin"))
+{
+    @Html.ActionLink("Registrera nytt träningspass", "Create")
+}
+
+@ViewBag.showHistory==true;
 
 
-        <table class="table">
-            <tr>
-                <th>
-                    @Html.DisplayNameFor(model => model.Name)
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => model.StartTime)
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => model.Duration)
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => model.Description)
-                </th>
-                <th></th>
-            </tr>
+<table class="table">
+    <tr>
+        <th>
+            @Html.DisplayNameFor(model => model.Name)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.StartTime)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Duration)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Description)
+        </th>
+        <th></th>
+    </tr>
 
 
-            @foreach (var item in Model)
+    @foreach (var item in Model)
             {
-                <tr>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.Name)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.StartTime)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.Duration)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.Description)
-                    </td>
-                    <td>
-                        @if (User.Identity.IsAuthenticated)
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Name)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.StartTime)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Duration)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Description)
+            </td>
+            <td>
+                @if (User.Identity.IsAuthenticated)
                 {
-                            @Html.ActionLink("Visa", "Details", new { id = item.Id }, new { htmlAttributes = new { @class = "btn btn-default" } })                         
-                            
-                            <span>|</span>
+                    @Html.ActionLink("Visa", "Details", new { id = item.Id }, new { htmlAttributes = new { @class = "btn btn-default" } }) <span>|</span>
 
-                            if (User.IsInRole("admin"))
-                            {
-                                @Html.ActionLink("Ändra", "Edit", new { id = item.Id }) <span>|</span>
-                            }
+                    if (User.IsInRole("admin"))
+                    {
+                        @Html.ActionLink("Ändra", "Edit", new { id = item.Id }) <span>|</span>
+                    }
 
-                            if (User.IsInRole("admin"))
-                            {
-                                @Html.ActionLink("Radera", "Delete", new { id = item.Id }) <span>|</span>
-                            }
+                    if (User.IsInRole("admin"))
+                    {
+                        @Html.ActionLink("Radera", "Delete", new { id = item.Id }) <span>|</span>
+                    }
+                    if (item.AttendingMembers.Where(am => am.UserName == userName).Count() > 0) { }
+                    //if (item.AttendingMembers.Contains(loggedinUser)) { }
 
-                            if (item.Booked)
-                            {
-                                @Html.ActionLink("Avboka", "BookingToggle", new { id = item.Id })
-                            }
-                            else
-                            {
-                                @Html.ActionLink("Boka", "BookingToggle", new { id = item.Id },
+                    if (item.Booked)
+                    {
+                        @Html.ActionLink("Avboka", "BookingToggle", new { id = item.Id })
+                    }
+                    else
+                    {
+                        @Html.ActionLink("Boka", "BookingToggle", new { id = item.Id },
                         new { htmlAttributes = new { @class = "btn btn-default" } })
-                            }
-                        }
-                    </td>
-                </tr>
-            }
-        </table>
+                    }
+                }
+            </td>
+        </tr>
+    }
+</table>
